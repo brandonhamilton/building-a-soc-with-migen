@@ -43,16 +43,60 @@
       <section>
         <h1>Getting started</h1>
 
-<div class="link_footer">
-<hr/>
+        <h3>Creating a build module</h3>
 
-<a href="http://brandonhamilton.github.com/building-a-soc-with-migen/connecting-board.html"><i class="icon-left-open-big"></i>Connecting the board
-</a><i class="icon-dot"></i>
-Creating a platform description
-<i class="icon-right-open-big"></i>
+        <p>To start our project, we first create a module that will build our system. This module will eventually be responsible for creating the platform, instantiating the top level system on this platform, and then running the synthesis tools.</p>
+        <p>For this module we will use an simple executable python script that we name <strong>build.py</strong>:
 
-</div>
+        <div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
 
+<span class="k">def</span> <span class="nf">build</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Building a SoC in python with Migen&quot;</span><span class="p">)</span>
+    <span class="c"># TODO: Build</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">build</span><span class="p">()</span>
+</pre></div>
+
+        </p>
+
+        <p>Ensure that our script is executable
+        <pre><code>$ chmod +x build.py</code></pre></p>
+
+        <p>
+        A <strong>Makefile</strong> is created to easily build and clean the project from the command line:
+<pre><code>all: build/soc_top.bit
+
+build/soc_top.bit:
+    @./build.py
+
+hdl:
+    @./build.py --no-run
+
+clean:
+    rm -rf build/*
+
+.PHONY: hdl clean
+</pre></code>
+        </p>
+
+        <p>To build and synthesize our SoC:
+        <pre><code>$ make</code></pre></p>
+
+        <p>To only generate the output verilog code:
+        <pre><code>$ make hdl</code></pre></p>
+
+        <p>To clean our project build:
+        <pre><code>$ make clean</code></pre></p>
+
+        <div class="link_footer">
+        <p><a href="https://github.com/brandonhamilton/building-a-soc-with-migen/archive/getting-started.tar.gz"><i class="icon-download-1"></i>&nbsp;Download the project files for this section</a></p>
+        <hr/>
+        <a href="http://brandonhamilton.github.com/building-a-soc-with-migen/connecting-board.html"><i class="icon-left-open-big"></i>Connecting the board
+        </a><i class="icon-dot"></i>
+        Creating a platform description
+        <i class="icon-right-open-big"></i>
+        </div>
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/brandonhamilton">brandonhamilton</a></p>
@@ -60,16 +104,15 @@ Creating a platform description
       </footer>
     </div>
     <script src="javascripts/scale.fix.js"></script>
-              <script type="text/javascript">
-            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-          </script>
-          <script type="text/javascript">
-            try {
-              var pageTracker = _gat._getTracker("UA-40695342-1");
-            pageTracker._trackPageview();
-            } catch(err) {}
-          </script>
-
+      <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+      </script>
+      <script type="text/javascript">
+        try {
+          var pageTracker = _gat._getTracker("UA-40695342-1");
+          pageTracker._trackPageview();
+        } catch(err) {}
+      </script>
   </body>
 </html>
