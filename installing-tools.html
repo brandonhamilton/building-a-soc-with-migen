@@ -45,8 +45,13 @@
 
 <p>Before we begin, we need to setup the required tools and libraries</p>
 
+<h3>Python 3.3</h3>
+<p>Migen requires Python 3.3, and this guide assumes that this version is available on the path as <code>python</code>.</p>
+<pre><code>$ python -V
+Python 3.3.1</code></pre>
+
 <h3>Installing Migen</h3>
-<p><a href="https://github.com/milkymist/migen">Migen</a> is a python toolbox for building complex digital hardware</p>
+<p><a href="https://github.com/milkymist/migen">Migen</a> is a python toolbox for building complex digital hardware.</p>
 <pre><code>git clone git@github.com:milkymist/migen.git
 cd migen
 python setup.py install</code></pre>
@@ -54,9 +59,12 @@ python setup.py install</code></pre>
 <h3>Installing Mibuild</h3>
 <p><a href="https://github.com/milkymist/mibuild">Mibuild</a> is a build system and board database for Migen-based FPGA designs</p>
 <pre><code>git clone git@github.com:milkymist/mibuild.git
-cd migen
+cd mibuild
 python setup.py install</code></pre>
 
+<h3>Xilinx ISE command line tools</h3>
+<p>This guide assumes that the <a href="http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/design-tools.html">Xilinx ISE Design Tools</a> have been installed. Mibuild will automatically source the Xilinx ISE environment setup script, and will call the various tools (<code>xst</code>, <code>ngdbuild</code>, <code>map</code>, <code>par</code>, <code>bitgen</code>) to synthesize, implement and generate the output FPGA bitstream. Ensure that the relevant ISE version that supports the targetted FPGA is available.
+</p>
 <div class="link_footer">
 <hr/>
 
