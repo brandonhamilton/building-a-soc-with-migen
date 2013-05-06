@@ -42,6 +42,34 @@
       </header>
       <section>
         <h1>Connecting the board</h1>
+        <img src="images/ml605.jpg" alt="Xilinx ML605 board">
+        <p>First, read through the <a href="http://www.xilinx.com/support/documentation/boards_and_kits/ug534.pdf">Xilinx ML605 Hardware User Guide</a> to become familiar with the board we are targetting. The <a href="http://www.xilinx.com/support/documentation/boards_and_kits/xtp052_ml605_schematics.pdf">ML605 Schematics</a> are a good additional source for reference.</p>
+        <h4>UART Serial</h4>
+        <p>Communication with the SoC will be achieved by using a USB Type Mini-B cable to connect our development machine to the <em>USB-to-UART</em> bridge available on the ML605.
+        <p>We will use <code>minicom</code> as our terminal emulator. Install this from the distribution repository<br/>
+          &nbsp;&nbsp;&nbsp;&nbsp;Arch Linux - <code>pacman -S minicom</code><br/>
+          &nbsp;&nbsp;&nbsp;&nbsp;Debian/Ubuntu - <code>apt-get install minicom</code><br/></p>
+        <p>To setup access in the terminal emulator, we can run
+        <pre><code>minicom -s</code></pre>
+        Edit the settings as follows and save them as default:</p>
+        <p>
+        <table>
+          <tbody>
+          <tr><td>Serial Device</td><td>/dev/ttyUSB0</td></tr>
+          <tr><td>Bps/Par/Bits</td><td>115200 8N1</td></tr>
+          <tr><td>Hardware Flow Control</td><td>No</td></tr>
+          <tr><td>Software Flow Control</td><td>No</td></tr>
+          <tr><td>Add carriage return</td><td>Yes</td></tr>
+        </tbody></table> </p>
+
+        <h4>USB JTAG</h4>
+        <p>The JTAG interface will be used to download the configuration bitstream to the Viretx-6 FPGA on the ML605 to run our SoC. Connect another USB Type Mini-B cable between the <em>USB JTAG</em> port on the ML605 and the development machine.</p>
+        <p>To test that the cable is working, launch <code>impact</code>, start a Boundary Scan and try to do a <em>Cable Auto Setup</em>.</p>
+
+        <p>
+        <strong>Getting the Xilinx tools to recognize the JTAG USB cable</strong><br/>When setting up the Xilinx tools on modern linux distributions you might have trouble getting them to find the USB cable. This is usually caused by incompatibilities with the latest <em>udev</em> rules syntax and/or the latest <em>libusb</em> interface.<br/>
+        A useul guide to correcting this can be found at <a href="http://javispedro.com/fpga/xilinx-usb-linux.html">Xilinx USB with a modern distro</a>
+        </p>
 
 <div class="link_footer">
 <hr/>
