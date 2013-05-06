@@ -1,4 +1,4 @@
-building-a-soc-with-migen
-=========================
+Building a SoC in python with Migen
+===================================
 
-Guide to building a System-on-Chip in python with Migen
+Code repository for the tutorial at http://brandonhamilton.github.io/building-a-soc-with-migen/
