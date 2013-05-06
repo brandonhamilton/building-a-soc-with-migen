@@ -24,14 +24,15 @@
         <p>A simple guide</p>
 
         <p class="view">
-          <a href="http://brandonhamilton.github.com/building-a-soc-with-migen/" class="selected">Overview</a>
+          <a href="http://brandonhamilton.github.com/building-a-soc-with-migen/">Overview</a>
           <br/>
-          <a href="http://brandonhamilton.github.com/building-a-soc-with-migen/installing-tools.html">Installing the tools</a>
+          <a href="http://brandonhamilton.github.com/building-a-soc-with-migen/installing-tools.html" class="selected">Installing the tools</a>
           <br/>
           <a href="http://brandonhamilton.github.com/building-a-soc-with-migen/connecting-board.html">Connecting the board</a>
           <br/>
           <a href="http://brandonhamilton.github.com/building-a-soc-with-migen/getting-started.html">Getting started</a>
         </p>
+
         <hr/>
         <p class="view"><a href="https://github.com/brandonhamilton/building-a-soc-with-migen">Get the source code on GitHub <small>brandonhamilton/building-a-soc-with-migen</small></a></p>
         <ul>
@@ -40,35 +41,29 @@
         </ul>
       </header>
       <section>
-        <h1>Overview</h1>
+        <h1>Installing the tools</h1>
 
-<p>This is a simple guide documenting the process of creating and implementian a System-on-Chip design in python using the <a href="https://github.com/milkymist/migen">Migen</a> toolbox.</p>
+<p>Before we begin, we need to setup the required tools and libraries</p>
 
-<p><strong>Migen</strong> is a python toolbox for building complex digital hardware.</p>
-<ul>
-<li>The latest documentation and reference can be found online at <a href="http://migen.readthedocs.org/">http://migen.readthedocs.org/</a>.
-</li><li>The <a href="http://milkymist.org/3/community.html">Milkymist community</a> is a very useful place to ask questions, get help and contribute to the project.</li></ul>
+<h3>Installing Migen</h3>
+<p><a href="https://github.com/milkymist/migen">Migen</a> is a python toolbox for building complex digital hardware</p>
+<pre><code>git clone git@github.com:milkymist/migen.git
+cd migen
+python setup.py install</code></pre>
 
-</p>
-
-<p>The SoC will be built to run on the <a href="http://www.xilinx.com/products/boards-and-kits/EK-V6-ML605-G.htm">Virtex-6 FPGA ML605 Evaluation Kit</a>.</p>
-
-<p>The system will heavily follow the design of the <a href="https://github.com/milkymist/milkymist-ng">milkymist-ng</a> SoC</p>
-
-<h4>Requirements</h4>
-
-<ul>
-<li>Python 3.3</li>
-<li><a href="https://github.com/milkymist/migen">Migen</a></li>
-<li><a href="https://github.com/milkymist/mibuild">Mibuild</a></li>
-<li>Xilinx ISE command line tools</li>
-</ul>
+<h3>Installing Mibuild</h3>
+<p><a href="https://github.com/milkymist/mibuild">Mibuild</a> is a build system and board database for Migen-based FPGA designs</p>
+<pre><code>git clone git@github.com:milkymist/mibuild.git
+cd migen
+python setup.py install</code></pre>
 
 <div class="link_footer">
 <hr/>
 
-<a href="http://brandonhamilton.github.com/building-a-soc-with-migen/installing-tools.html">Installing the tools
-<i class="icon-right-open-big"></i></a>
+<a href="http://brandonhamilton.github.com/building-a-soc-with-migen/"><i class="icon-left-open-big"></i>Overview
+</a><i class="icon-dot"></i>
+<a href="http://brandonhamilton.github.com/building-a-soc-with-migen/connecting-board.html">Connecting the board
+<i class="icon-right-open-big"></a></i>
 
 </div>
 
