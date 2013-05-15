@@ -1,0 +1,158 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Building a SoC in python with Migen by brandonhamilton</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    
+    <link rel="stylesheet" href="stylesheets/tutorial-font.css">
+    <link rel="stylesheet" href="stylesheets/animation.css"><!--[if IE 7]>
+    <link rel="stylesheet" href="stylesheets/tutorial-font-ie7.css"><![endif]-->
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Building a SoC in python with Migen</h1>
+        <p>A simple guide</p>
+
+        <p class="view">
+          <a href="http://brandonhamilton.github.com/building-a-soc-with-migen/">Overview</a>
+          <br/>
+          <a href="http://brandonhamilton.github.com/building-a-soc-with-migen/installing-tools.html">Installing the tools</a>
+          <br/>
+          <a href="http://brandonhamilton.github.com/building-a-soc-with-migen/connecting-board.html">Connecting the board</a>
+          <br/>
+          <a href="http://brandonhamilton.github.com/building-a-soc-with-migen/getting-started.html">Getting started</a>
+          <br/>
+          <a href="http://brandonhamilton.github.com/building-a-soc-with-migen/creating-platform-description.html" class="selected">Creating a platform description</a>
+          <br/>
+          <a href="http://brandonhamilton.github.com/building-a-soc-with-migen/top-level-design.html">Top Level Design</a>
+        </p>
+
+        <hr/>
+        <p class="view"><a href="https://github.com/brandonhamilton/building-a-soc-with-migen">Get the source code on GitHub <small>brandonhamilton/building-a-soc-with-migen</small></a></p>
+        <ul>
+          <li><a href="https://github.com/brandonhamilton/building-a-soc-with-migen/tarball/master">Download <strong>Full Project</strong></a></li>
+          <li><a href="https://github.com/brandonhamilton/building-a-soc-with-migen">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>Creating a platform description</h1>
+
+        <p>A list of the currently supported platforms can be found in the <a href="https://github.com/milkymist/mibuild/tree/master/mibuild/platforms">Mibuild platforms folder</a>.</p>
+
+        <p>If the target platform is already supported, there is no need to create a new platform description file as described in this section, and you can continue on to the <a href="http://brandonhamilton.github.com/building-a-soc-with-migen/top-level-design.html">Top Level Design<i class="icon-right-open-big"></i></a></p>
+
+        <p>If the target platform is not yet supported, it is simple to create a new platform description for the target board. In our case, we will create a description for the Xilinx ML605 in a python module - <strong>platform.py</strong> -  in the project root directory</p>
+
+        <p>The platform documentation serves as our reference:
+        <ul>
+        <li><a href="http://www.xilinx.com/support/documentation/boards_and_kits/ug534.pdf">Xilinx ML605 Hardware User Guide</a></li>
+        <li><a href="http://www.xilinx.com/support/documentation/boards_and_kits/xtp052_ml605_schematics.pdf">ML605 Schematics</a></li>
+        </ul>
+        </p>
+
+        <p>Import the mibuild platform elements from the <code>mibuild.generic_platform</code> module. These allow us to define the platform resources using python objects such as <code>Subsignal</code>, <code>Pins</code>, and <code>IOStandard</code>.
+        </p>
+        <p><div class="highlight"><pre><span class="kn">from</span> <span class="nn"><a href="https://github.com/milkymist/mibuild/blob/master/mibuild/generic_platform.py">mibuild.generic_platform</a></span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn"><a href="https://github.com/milkymist/mibuild/blob/master/mibuild/xilinx_ise.py">mibuild.xilinx_ise</a></span> <span class="kn">import</span> <span class="n">XilinxISEPlatform</span><span class="p">,</span> <span class="n">CRG_DS</span></pre></div></p>
+
+        <p>The I/O pads on the platform are described using these mibuild platform elements. These will also be used to automatically create the constraints file used by the synthesis tools. Our SoC design will be able to request relevant platform resources from this platform description by name (and number). This allows us to create a more portable design that is separated from the underlying implementation platform.</p>
+        <p><div class="highlight"><pre><span class="n">_io</span> <span class="o">=</span> <span class="p">[</span></pre></div></p>
+
+        <p>The I/O pads are specified in a list containing a tuple for each resource specifying the resource name, resource number (used for multiple resources with the same name), and corresponding properties and sub-signals.</p>
+
+        <p>The ML605 contains a <em>200MHz</em> differential oscillator connected to pins <code>J9</code> and <code>H9</code>. These pins are represented using <code>Subsignal</code>s with the location, corresponding I/O standards and other properties.</p>
+<p><div class="highlight"><pre>
+    <span class="c"># System clock (Differential 200MHz)</span>
+    <span class="p">(</span><span class="s">&quot;clk200&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">Subsignal</span><span class="p">(</span><span class="s">&quot;p&quot;</span><span class="p">,</span> <span class="n">Pins</span><span class="p">(</span><span class="s">&quot;J9&quot;</span><span class="p">),</span> <span class="n">IOStandard</span><span class="p">(</span><span class="s">&quot;LVDS_25&quot;</span><span class="p">),</span> <span class="n">Misc</span><span class="p">(</span><span class="s">&quot;DIFF_TERM=TRUE&quot;</span><span class="p">)),</span>
+        <span class="n">Subsignal</span><span class="p">(</span><span class="s">&quot;n&quot;</span><span class="p">,</span> <span class="n">Pins</span><span class="p">(</span><span class="s">&quot;H9&quot;</span><span class="p">),</span> <span class="n">IOStandard</span><span class="p">(</span><span class="s">&quot;LVDS_25&quot;</span><span class="p">),</span> <span class="n">Misc</span><span class="p">(</span><span class="s">&quot;DIFF_TERM=TRUE&quot;</span><span class="p">))</span>
+    <span class="p">),</span></pre></div></p>
+
+        <p>Our platform description will try to use a naming convention similar to that used by other <a href="https://github.com/milkymist/mibuild/tree/master/mibuild/platforms">mibuild platforms</a>, where system clocks are specified with the <code>clk</code> prefix along with the frequency.</p>
+
+        <p>The single source <em>66MHz</em> oscillator could be described similarly:</p>
+        <p><div class="highlight"><pre>    <span class="c"># User clock (66MHz)</span>
+    <span class="p">(</span><span class="s">&quot;clk66&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Pins</span><span class="p">(</span><span class="s">&quot;U23&quot;</span><span class="p">),</span> <span class="n">IOStandard</span><span class="p">(</span><span class="s">&quot;LVCMOS25&quot;</span><span class="p">)),</span></pre></div></p>
+
+        <p>The ML605 provides six active-High pushbutton switches. For the purposes of this tutorial we will only specify the <em>CPU Reset</em> connected to pin <code>H10</code>. Note that this pin uses a different I/O standard (<em>SSTL15</em>).</p>
+        <p><div class="highlight"><pre>    <span class="c"># CPU reset switch</span>
+    <span class="p">(</span><span class="s">&quot;cpu_reset&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Pins</span><span class="p">(</span><span class="s">&quot;H10&quot;</span><span class="p">),</span> <span class="n">IOStandard</span><span class="p">(</span><span class="s">&quot;SSTL15&quot;</span><span class="p">)),</span></pre></div></p>
+
+        <p>The <em>USB-to-UART</em> pins will be used for serial communication with the board</p>
+        <p><div class="highlight"><pre>    <span class="c"># USB-to-UART</span>
+    <span class="p">(</span><span class="s">&quot;serial&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">Subsignal</span><span class="p">(</span><span class="s">&quot;tx&quot;</span><span class="p">,</span> <span class="n">Pins</span><span class="p">(</span><span class="s">&quot;J25&quot;</span><span class="p">),</span> <span class="n">IOStandard</span><span class="p">(</span><span class="s">&quot;LVCMOS25&quot;</span><span class="p">)),</span>
+        <span class="n">Subsignal</span><span class="p">(</span><span class="s">&quot;rx&quot;</span><span class="p">,</span> <span class="n">Pins</span><span class="p">(</span><span class="s">&quot;J24&quot;</span><span class="p">),</span> <span class="n">IOStandard</span><span class="p">(</span><span class="s">&quot;LVCMOS25&quot;</span><span class="p">))</span>
+    <span class="p">),</span></pre></div></p>
+
+        <p>A group of simliar resources can defined with the same resource name</p>
+        <p><div class="highlight"><pre>    <span class="c"># LEDs</span>
+    <span class="p">(</span><span class="s">&quot;user_led&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Pins</span><span class="p">(</span><span class="s">&quot;AC22&quot;</span><span class="p">),</span> <span class="n">IOStandard</span><span class="p">(</span><span class="s">&quot;LVCMOS25&quot;</span><span class="p">),</span> <span class="n">Misc</span><span class="p">(</span><span class="s">&quot;SLEW=SLOW&quot;</span><span class="p">)),</span>
+    <span class="p">(</span><span class="s">&quot;user_led&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">Pins</span><span class="p">(</span><span class="s">&quot;AC24&quot;</span><span class="p">),</span> <span class="n">IOStandard</span><span class="p">(</span><span class="s">&quot;LVCMOS25&quot;</span><span class="p">),</span> <span class="n">Misc</span><span class="p">(</span><span class="s">&quot;SLEW=SLOW&quot;</span><span class="p">)),</span>
+    <span class="p">(</span><span class="s">&quot;user_led&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">Pins</span><span class="p">(</span><span class="s">&quot;AE22&quot;</span><span class="p">),</span> <span class="n">IOStandard</span><span class="p">(</span><span class="s">&quot;LVCMOS25&quot;</span><span class="p">),</span> <span class="n">Misc</span><span class="p">(</span><span class="s">&quot;SLEW=SLOW&quot;</span><span class="p">)),</span>
+    <span class="p">(</span><span class="s">&quot;user_led&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">Pins</span><span class="p">(</span><span class="s">&quot;AE23&quot;</span><span class="p">),</span> <span class="n">IOStandard</span><span class="p">(</span><span class="s">&quot;LVCMOS25&quot;</span><span class="p">),</span> <span class="n">Misc</span><span class="p">(</span><span class="s">&quot;SLEW=SLOW&quot;</span><span class="p">)),</span>
+    <span class="p">(</span><span class="s">&quot;user_led&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">Pins</span><span class="p">(</span><span class="s">&quot;AB23&quot;</span><span class="p">),</span> <span class="n">IOStandard</span><span class="p">(</span><span class="s">&quot;LVCMOS25&quot;</span><span class="p">),</span> <span class="n">Misc</span><span class="p">(</span><span class="s">&quot;SLEW=SLOW&quot;</span><span class="p">)),</span>
+    <span class="p">(</span><span class="s">&quot;user_led&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">Pins</span><span class="p">(</span><span class="s">&quot;AG23&quot;</span><span class="p">),</span> <span class="n">IOStandard</span><span class="p">(</span><span class="s">&quot;LVCMOS25&quot;</span><span class="p">),</span> <span class="n">Misc</span><span class="p">(</span><span class="s">&quot;SLEW=SLOW&quot;</span><span class="p">)),</span>
+    <span class="p">(</span><span class="s">&quot;user_led&quot;</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="n">Pins</span><span class="p">(</span><span class="s">&quot;AE24&quot;</span><span class="p">),</span> <span class="n">IOStandard</span><span class="p">(</span><span class="s">&quot;LVCMOS25&quot;</span><span class="p">),</span> <span class="n">Misc</span><span class="p">(</span><span class="s">&quot;SLEW=SLOW&quot;</span><span class="p">)),</span>
+    <span class="p">(</span><span class="s">&quot;user_led&quot;</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="n">Pins</span><span class="p">(</span><span class="s">&quot;AD24&quot;</span><span class="p">),</span> <span class="n">IOStandard</span><span class="p">(</span><span class="s">&quot;LVCMOS25&quot;</span><span class="p">),</span> <span class="n">Misc</span><span class="p">(</span><span class="s">&quot;SLEW=SLOW&quot;</span><span class="p">)),</span>
+<span class="p">]</span></pre></div></p>
+
+      <p>The above is not a complete description of all resources available on the ML605, and any additional resources, such as the <em>Ethernet PHY</em>, <em>Multi-Gigabit Transceivers</em> or others, can similarly be added as needed.</p>
+
+      <p>Now we create out platform class, which will be used by our build script. This class will inherit from the <code>XilinxISEPlatform</code> class, which contains the logic for building our platform with the Xilinx ISE tools.</p>
+      <p>Parameters passed to the platform constructor are
+      <table>
+          <tbody>
+          <tr><td><em>device</em></td><td>Target FPGA device</td><td>required</td></tr>
+          <tr><td><em>io</em></td><td>List of I/O pads</td><td>required</td></tr>
+          <tr><td><em>default_crg_factory</em></td><td>Default Clock/Reset generator</td><td>optional</td></tr>
+          <tr><td><em>name</em></td><td>Platform name</td><td>optional</td></tr>
+        </tbody>
+      </table>
+      </p>
+      <p>In this case the ML605 <em>device</em> is the <code>xc6vlx240t-ff1156-1</code> FPGA.</p><p>By specifying a default Clock/Reset generator factory, mibuild will use this to automatically generate a Clock/Reset module for the platform if no <code>ClockDomain</code> instances are provided in the design. In this case, we will specify the <code>CRG_DS</code> class, which will create a dedicated differential buffered input clock (using the Xilinx <code>IBUFGDS</code> primitive) with the <code>clk200</code> resource, reset signal with the <code>cpu_reset</code> resource, and timing constraint of <code>5.0</code> <em>ns</em>.</p>
+      <p><div class="highlight"><pre><span class="k">class</span> <span class="nc">Platform</span><span class="p">(</span><span class="n">XilinxISEPlatform</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">XilinxISEPlatform</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;xc6vlx240t-ff1156-1&quot;</span><span class="p">,</span> <span class="n">_io</span><span class="p">,</span>
+            <span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">CRG_DS</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="s">&quot;clk200&quot;</span><span class="p">,</span> <span class="s">&quot;cpu_reset&quot;</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">))</span>
+</pre></div>
+        </p>
+        <p>The platform is now ready to be used by the mibuild tools.</p>
+        <p>If possible, consider contributing any new platform descriptions to be included in the Mibuild project by sending them to the <a href="http://lists.milkymist.org/listinfo.cgi/devel-milkymist.org">Developers mailing list</a>.</p>
+        <div class="link_footer">
+        <p><a href="https://github.com/brandonhamilton/building-a-soc-with-migen/archive/creating-platform-description.tar.gz"><i class="icon-download-1"></i>&nbsp;Download the project files for this section</a></p>
+        <hr/>
+        <a href="http://brandonhamilton.github.com/building-a-soc-with-migen/getting-started.html"><i class="icon-left-open-big"></i>Getting started
+        </a><i class="icon-dot"></i>
+        <a href="http://brandonhamilton.github.com/building-a-soc-with-migen/top-level-design.html">Top Level Design
+        <i class="icon-right-open-big"></i></a>
+        </div>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/brandonhamilton">brandonhamilton</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+      <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+      </script>
+      <script type="text/javascript">
+        try {
+          var pageTracker = _gat._getTracker("UA-40695342-1");
+          pageTracker._trackPageview();
+        } catch(err) {}
+      </script>
+  </body>
+</html>

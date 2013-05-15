@@ -31,6 +31,8 @@
           <a href="http://brandonhamilton.github.com/building-a-soc-with-migen/connecting-board.html">Connecting the board</a>
           <br/>
           <a href="http://brandonhamilton.github.com/building-a-soc-with-migen/getting-started.html" class="selected">Getting started</a>
+          <br/>
+          <a href="http://brandonhamilton.github.com/building-a-soc-with-migen/creating-platform-description.html">Creating a platform description</a>
         </p>
 
         <hr/>
@@ -43,10 +45,25 @@
       <section>
         <h1>Getting started</h1>
 
+        <h3>Project layout</h3>
+        <img src="images/folders.png" alt="Project layout">
+
+        <p>The project source code is separated into the following folders:
+        <table>
+          <tbody>
+          <tr><th>Folder</th><th>Purpose</th></tr>
+          <tr><td>build</td><td>Automatically generated output files</td></tr>
+          <tr><td>common</td><td>Files common to both hardware and software components</td></tr>
+          <tr><td>hdl</td><td>HDL files of hardware components</td></tr>
+          <tr><td>soc</td><td>Python modules of hardware components</td></tr>
+          <tr><td>software</td><td>Software components</td></tr>
+        </tbody></table>
+        </p>
+
         <h3>Creating a build module</h3>
 
         <p>To start our project, we first create a module that will build our system. This module will eventually be responsible for creating the platform, instantiating the top level system on this platform, and then running the synthesis tools.</p>
-        <p>For this module we will use an simple executable python script that we name <strong>build.py</strong>:
+        <p>For this module we will use an simple executable python script - <strong>build.py</strong> - in the root of our project:
 
         <div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
 
@@ -64,7 +81,7 @@
         <pre><code>$ chmod +x build.py</code></pre></p>
 
         <p>
-        A <strong>Makefile</strong> is created to easily build and clean the project from the command line:
+        A <strong>Makefile</strong> is also created to easily build and clean the project from the command line:
 <pre><code>all: build/soc_top.bit
 
 build/soc_top.bit:
@@ -94,8 +111,8 @@ clean:
         <hr/>
         <a href="http://brandonhamilton.github.com/building-a-soc-with-migen/connecting-board.html"><i class="icon-left-open-big"></i>Connecting the board
         </a><i class="icon-dot"></i>
-        Creating a platform description
-        <i class="icon-right-open-big"></i>
+        <a href="http://brandonhamilton.github.com/building-a-soc-with-migen/creating-platform-description.html">Creating a platform description
+        <i class="icon-right-open-big"></i></a>
         </div>
       </section>
       <footer>
